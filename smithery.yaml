@@ -6,15 +6,19 @@ startCommand:
     # JSON Schema defining the configuration options for the MCP.
     type: object
     required:
-      - memoryBankRoot
+      - mongodbUrl
     properties:
-      memoryBankRoot:
+      mongodbUrl:
         type: string
-        description: The root directory for memory bank projects.
+        description: MongoDB connection URL (e.g., mongodb://localhost:27017)
+      mongodbDb:
+        type: string
+        description: MongoDB database name
+        default: memory_bank
   commandFunction:
     # A function that produces the CLI command to start the MCP on stdio.
     |-
-    (config) => ({command:'node',args:['dist/index.js'],env:{MEMORY_BANK_ROOT:config.memoryBankRoot}})
+    (config) => ({command:'node',args:['dist/main/index.js'],env:{MONGODB_URL:config.mongodbUrl,MONGODB_DB:config.mongodbDb||'memory_bank'}})
 
 # Add the build section for Docker support
 build:
