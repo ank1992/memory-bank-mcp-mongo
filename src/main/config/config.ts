@@ -1,4 +1,6 @@
+import { get } from 'http';
 import { z } from 'zod';
+import { getEnv } from './env.js';
 
 const ConfigSchema = z.object({
   mongodb: z.object({
@@ -28,10 +30,12 @@ export function loadConfig(): Config {
     throw new Error('MONGODB_URL environment variable is required');
   }
 
+  const env = getEnv();
+
   const config = {
     mongodb: {
-      connectionString: mongoUrl,
-      databaseName: process.env.MONGODB_DB || 'memory_bank',
+      connectionString: env.MONGODB_URL,
+      databaseName: env.MONGODB_DB || 'memory_bank',
     },
     server: {
       port: parseInt(process.env.PORT || '3000'),
