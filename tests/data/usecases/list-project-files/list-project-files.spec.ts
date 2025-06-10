@@ -52,13 +52,14 @@ describe("ListProjectFiles UseCase", () => {
 
     expect(listFilesSpy).toHaveBeenCalledWith("project-1");
   });
-
   test("should return files list on success", async () => {
-    const params: ListProjectFilesParams = { projectName: "project-1" };
+    const params: ListProjectFilesParams = { projectName: "project-1" };    const files = await sut.listProjectFiles(params);
 
-    const files = await sut.listProjectFiles(params);
-
-    expect(files).toEqual(["file1.md", "file2.md"]);
+    expect(files).toHaveLength(2);
+    expect(files.map(f => f.name)).toEqual(["file1.md", "file2.md"]);
+    expect(files[0]).toHaveProperty('id');
+    expect(files[0]).toHaveProperty('content');
+    expect(files[0]).toHaveProperty('metadata');
   });
 
   test("should propagate errors if repository throws", async () => {

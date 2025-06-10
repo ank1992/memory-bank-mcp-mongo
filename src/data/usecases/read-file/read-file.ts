@@ -11,7 +11,7 @@ export class ReadFile implements ReadFileUseCase {
     private readonly projectRepository: ProjectRepository
   ) {}
 
-  async readFile(params: ReadFileParams): Promise<string | null> {
+  async readFile(params: ReadFileParams): Promise<import("../../../domain/entities/index.js").File | null> {
     const { projectName, fileName } = params;
 
     const projectExists = await this.projectRepository.projectExists(

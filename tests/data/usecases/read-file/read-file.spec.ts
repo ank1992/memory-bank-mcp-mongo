@@ -56,16 +56,19 @@ describe("ReadFile UseCase", () => {
 
     expect(loadFileSpy).toHaveBeenCalledWith("project-1", "file1.md");
   });
-
   test("should return file content on success", async () => {
     const params: ReadFileParams = {
       projectName: "project-1",
       fileName: "file1.md",
     };
 
-    const content = await sut.readFile(params);
+    const file = await sut.readFile(params);
 
-    expect(content).toBe("Content of file1.md");
+    expect(file).toBeDefined();
+    expect(file?.content).toBe("Content of file1.md");
+    expect(file?.name).toBe("file1.md");
+    expect(file).toHaveProperty('id');
+    expect(file).toHaveProperty('metadata');
   });
 
   test("should return null if file does not exist", async () => {

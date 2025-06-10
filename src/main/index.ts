@@ -1,8 +1,13 @@
 #!/usr/bin/env node
 
-import app from "./protocols/mcp/app.js";
+import createApp from "./protocols/mcp/app.js";
 
-app.start().catch((error) => {
-  console.error(error);
+async function start() {
+  const app = await createApp();
+  await app.start();
+}
+
+start().catch((error) => {
+  console.error('❌ Failed to start server:', error);
   process.exit(1);
 });

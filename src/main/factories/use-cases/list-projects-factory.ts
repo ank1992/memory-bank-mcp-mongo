@@ -1,8 +1,7 @@
 import { ListProjects } from "../../../data/usecases/list-projects/list-projects.js";
-import { FsProjectRepository } from "../../../infra/filesystem/repositories/fs-project-repository.js";
-import { env } from "../../config/env.js";
+import { getRepositories } from "../repositories/repositories-factory.js";
 
 export const makeListProjects = () => {
-  const projectRepository = new FsProjectRepository(env.rootPath);
+  const { projectRepository } = getRepositories();
   return new ListProjects(projectRepository);
 };

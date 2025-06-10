@@ -1,25 +1,81 @@
 import { FileRepository } from "../../../src/data/protocols/file-repository.js";
+import { File } from "../../../src/domain/entities/file.js";
+import { randomUUID } from 'crypto';
 
 export class MockFileRepository implements FileRepository {
-  private projectFiles: Record<string, Record<string, string>> = {
+  private projectFiles: Record<string, Record<string, File>> = {
     "project-1": {
-      "file1.md": "Content of file1.md",
-      "file2.md": "Content of file2.md",
+      "file1.md": {
+        id: randomUUID(),
+        name: "file1.md",
+        content: "Content of file1.md",
+        projectName: "project-1",
+        createdAt: new Date('2024-01-01'),
+        updatedAt: new Date('2024-01-01'),
+        size: "Content of file1.md".length,
+        checksum: "abc123",
+        metadata: {
+          encoding: 'utf-8',
+          mimeType: 'text/markdown',
+          tags: ['mock', 'test']
+        }
+      },
+      "file2.md": {
+        id: randomUUID(),
+        name: "file2.md",
+        content: "Content of file2.md",
+        projectName: "project-1",
+        createdAt: new Date('2024-01-02'),
+        updatedAt: new Date('2024-01-02'),
+        size: "Content of file2.md".length,
+        checksum: "def456",
+        metadata: {
+          encoding: 'utf-8',
+          mimeType: 'text/markdown'
+        }
+      },
     },
     "project-2": {
-      "fileA.md": "Content of fileA.md",
-      "fileB.md": "Content of fileB.md",
+      "fileA.md": {
+        id: randomUUID(),
+        name: "fileA.md",
+        content: "Content of fileA.md",
+        projectName: "project-2",
+        createdAt: new Date('2024-01-03'),
+        updatedAt: new Date('2024-01-03'),
+        size: "Content of fileA.md".length,
+        checksum: "ghi789",
+        metadata: {
+          encoding: 'utf-8',
+          mimeType: 'text/markdown'
+        }
+      },
+      "fileB.md": {
+        id: randomUUID(),
+        name: "fileB.md",
+        content: "Content of fileB.md",
+        projectName: "project-2",
+        createdAt: new Date('2024-01-04'),
+        updatedAt: new Date('2024-01-04'),
+        size: "Content of fileB.md".length,
+        checksum: "jkl012",
+        metadata: {
+          encoding: 'utf-8',
+          mimeType: 'text/markdown'
+        }
+      },
     },
   };
 
-  async listFiles(projectName: string): Promise<string[]> {
-    return Object.keys(this.projectFiles[projectName] || {});
+  async listFiles(projectName: string): Promise<File[]> {
+    const project = this.projectFiles[projectName];
+    return project ? Object.values(project) : [];
   }
 
   async loadFile(
     projectName: string,
     fileName: string
-  ): Promise<string | null> {
+  ): Promise<File | null> {
     if (
       this.projectFiles[projectName] &&
       this.projectFiles[projectName][fileName]
@@ -33,25 +89,49 @@ export class MockFileRepository implements FileRepository {
     projectName: string,
     fileName: string,
     content: string
-  ): Promise<string | null> {
+  ): Promise<File | null> {
     if (!this.projectFiles[projectName]) {
       this.projectFiles[projectName] = {};
     }
-    this.projectFiles[projectName][fileName] = content;
-    return content;
+    
+    const file: File = {
+      id: randomUUID(),
+      name: fileName,
+      content,
+      projectName,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      size: content.length,
+      checksum: `mock-${Date.now()}`,
+      metadata: {
+        encoding: 'utf-8',
+        mimeType: fileName.endsWith('.md') ? 'text/markdown' : 'text/plain'
+      }
+    };
+    
+    this.projectFiles[projectName][fileName] = file;
+    return file;
   }
 
   async updateFile(
     projectName: string,
     fileName: string,
     content: string
-  ): Promise<string | null> {
+  ): Promise<File | null> {
     if (
       this.projectFiles[projectName] &&
       this.projectFiles[projectName][fileName]
     ) {
-      this.projectFiles[projectName][fileName] = content;
-      return content;
+      const existingFile = this.projectFiles[projectName][fileName];
+      const updatedFile: File = {
+        ...existingFile,
+        content,
+        updatedAt: new Date(),
+        size: content.length,
+        checksum: `mock-${Date.now()}`
+      };
+      this.projectFiles[projectName][fileName] = updatedFile;
+      return updatedFile;
     }
     return null;
   }

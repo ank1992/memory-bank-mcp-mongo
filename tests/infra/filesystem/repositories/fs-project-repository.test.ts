@@ -27,15 +27,16 @@ describe("FsProjectRepository", () => {
 
     it("should return project directories as Project objects", async () => {
       // Create test directories
-      await fs.mkdir(path.join(tempDir, "project1"));
-      await fs.mkdir(path.join(tempDir, "project2"));
+      await fs.mkdir(path.join(tempDir, "project1"));      await fs.mkdir(path.join(tempDir, "project2"));
       // Create a file to ensure it's not returned
       await fs.writeFile(path.join(tempDir, "not-a-project.txt"), "test");
 
       const result = await repository.listProjects();
 
       expect(result).toHaveLength(2);
-      expect(result).toEqual(expect.arrayContaining(["project1", "project2"]));
+      expect(result.map(p => p.name)).toEqual(expect.arrayContaining(["project1", "project2"]));
+      expect(result[0]).toHaveProperty('id');
+      expect(result[0]).toHaveProperty('metadata');
     });
   });
 

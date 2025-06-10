@@ -11,7 +11,7 @@ export class UpdateFile implements UpdateFileUseCase {
     private readonly projectRepository: ProjectRepository
   ) {}
 
-  async updateFile(params: UpdateFileParams): Promise<string | null> {
+  async updateFile(params: UpdateFileParams): Promise<import("../../../domain/entities/index.js").File | null> {
     const { projectName, fileName, content } = params;
 
     const projectExists = await this.projectRepository.projectExists(

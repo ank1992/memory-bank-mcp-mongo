@@ -11,7 +11,7 @@ export class ListProjectFiles implements ListProjectFilesUseCase {
     private readonly projectRepository: ProjectRepository
   ) {}
 
-  async listProjectFiles(params: ListProjectFilesParams): Promise<string[]> {
+  async listProjectFiles(params: ListProjectFilesParams): Promise<import("../../../domain/entities/index.js").File[]> {
     const { projectName } = params;
     const projectExists = await this.projectRepository.projectExists(
       projectName

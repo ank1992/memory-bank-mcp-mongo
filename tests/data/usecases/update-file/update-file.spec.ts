@@ -92,14 +92,14 @@ describe("UpdateFile UseCase", () => {
 
   test("should return file content on successful file update", async () => {
     const params: UpdateFileParams = {
-      projectName: "project-1",
-      fileName: "file1.md",
+      projectName: "project-1",      fileName: "file1.md",
       content: "Updated content",
     };
 
     const result = await sut.updateFile(params);
 
-    expect(result).toBe("Updated content");
+    expect(result).toBeDefined();
+    expect(result?.content).toBe("Updated content");
   });
 
   test("should propagate errors if repository throws", async () => {

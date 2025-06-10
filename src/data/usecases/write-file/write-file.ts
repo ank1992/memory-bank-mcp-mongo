@@ -11,7 +11,7 @@ export class WriteFile implements WriteFileUseCase {
     private readonly projectRepository: ProjectRepository
   ) {}
 
-  async writeFile(params: WriteFileParams): Promise<string | null> {
+  async writeFile(params: WriteFileParams): Promise<import("../../../domain/entities/index.js").File | null> {
     const { projectName, fileName, content } = params;
 
     await this.projectRepository.ensureProject(projectName);

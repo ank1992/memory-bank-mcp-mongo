@@ -19,11 +19,12 @@ describe("ListProjects UseCase", () => {
 
     expect(listProjectsSpy).toHaveBeenCalledTimes(1);
   });
+  test("should return a list of projects on success", async () => {    const projects = await sut.listProjects();
 
-  test("should return a list of projects on success", async () => {
-    const projects = await sut.listProjects();
-
-    expect(projects).toEqual(["project-1", "project-2"]);
+    expect(projects).toHaveLength(2);
+    expect(projects.map(p => p.name)).toEqual(["project-1", "project-2"]);
+    expect(projects[0]).toHaveProperty('id');
+    expect(projects[0]).toHaveProperty('metadata');
   });
 
   test("should propagate errors if repository throws", async () => {

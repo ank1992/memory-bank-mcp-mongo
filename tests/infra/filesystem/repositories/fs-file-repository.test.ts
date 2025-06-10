@@ -46,7 +46,12 @@ describe("FsFileRepository", () => {
       const result = await repository.listFiles(projectName);
 
       expect(result).toHaveLength(2);
-      expect(result).toEqual(expect.arrayContaining(["file1.md", "file2.txt"]));
+      expect(result.map((f) => f.name)).toEqual(
+        expect.arrayContaining(["file1.md", "file2.txt"])
+      );
+      expect(result[0]).toHaveProperty("id");
+      expect(result[0]).toHaveProperty("content");
+      expect(result[0]).toHaveProperty("metadata");
     });
   });
 
@@ -73,18 +78,28 @@ describe("FsFileRepository", () => {
 
       const result = await repository.loadFile(projectName, fileName);
 
-      expect(result).toBe(fileContent);
+      expect(result).toBeDefined();
+      expect(result?.content).toBe(fileContent);
+      expect(result?.name).toBe(fileName);
+      expect(result).toHaveProperty("id");
+      expect(result).toHaveProperty("metadata");
     });
   });
 
   describe("writeFile", () => {
     it("should create the project directory if it doesn't exist", async () => {
       const newProjectName = "new-project";
-      const newFilePath = path.join(tempDir, newProjectName, fileName);
 
-      await repository.writeFile(newProjectName, fileName, fileContent);
+      const result = await repository.writeFile(
+        newProjectName,
+        fileName,
+        fileContent
+      );
 
-      const exists = await fs.pathExists(newFilePath);
+      expect(result).toBeDefined();
+      expect(result?.content).toBe(fileContent);
+
+      const exists = await fs.pathExists(path.join(tempDir, newProjectName));
       expect(exists).toBe(true);
     });
 
@@ -93,7 +108,7 @@ describe("FsFileRepository", () => {
 
       const content = await fs.readFile(
         path.join(tempDir, projectName, fileName),
-        "utf-8"
+        "utf8"
       );
       expect(content).toBe(fileContent);
     });
@@ -105,11 +120,12 @@ describe("FsFileRepository", () => {
         fileContent
       );
 
-      expect(result).toBe(fileContent);
+      expect(result).toBeDefined();
+      expect(result?.content).toBe(fileContent);
     });
 
     it("should return null if the file already exists", async () => {
-      // Create a test file first
+      // Create the file first
       await fs.writeFile(
         path.join(tempDir, projectName, fileName),
         "Original content"
@@ -123,10 +139,10 @@ describe("FsFileRepository", () => {
 
       expect(result).toBeNull();
 
-      // Verify content wasn't changed
+      // Verify the original content wasn't overwritten
       const content = await fs.readFile(
         path.join(tempDir, projectName, fileName),
-        "utf-8"
+        "utf8"
       );
       expect(content).toBe("Original content");
     });
@@ -136,9 +152,10 @@ describe("FsFileRepository", () => {
     it("should return null when the file doesn't exist", async () => {
       const result = await repository.updateFile(
         projectName,
-        "non-existent.md",
+        fileName,
         fileContent
       );
+
       expect(result).toBeNull();
     });
 
@@ -148,48 +165,53 @@ describe("FsFileRepository", () => {
         fileName,
         fileContent
       );
+
       expect(result).toBeNull();
     });
 
     it("should update file content for an existing file", async () => {
-      // Create a test file first
+      const updatedContent = "Updated content";
+
+      // Create the file first
       await fs.writeFile(
         path.join(tempDir, projectName, fileName),
-        "Original content"
+        fileContent
       );
 
-      const updatedContent = "Updated content";
       const result = await repository.updateFile(
         projectName,
         fileName,
         updatedContent
       );
 
-      expect(result).toBe(updatedContent);
+      expect(result).toBeDefined();
+      expect(result?.content).toBe(updatedContent);
 
       // Verify content was changed
       const content = await fs.readFile(
         path.join(tempDir, projectName, fileName),
-        "utf-8"
+        "utf8"
       );
       expect(content).toBe(updatedContent);
     });
 
     it("should return the updated file content", async () => {
-      // Create a test file first
+      const updatedContent = "Updated content";
+
+      // Create the file first
       await fs.writeFile(
         path.join(tempDir, projectName, fileName),
-        "Original content"
+        fileContent
       );
 
-      const updatedContent = "Updated content";
       const result = await repository.updateFile(
         projectName,
         fileName,
         updatedContent
       );
 
-      expect(result).toBe(updatedContent);
+      expect(result).toBeDefined();
+      expect(result?.content).toBe(updatedContent);
     });
   });
 });

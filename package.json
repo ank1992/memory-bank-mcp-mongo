@@ -1,27 +1,29 @@
 {
-  "name": "@allpepper/memory-bank-mcp",
-  "version": "0.2.1",
-  "description": "MCP server for remote management of project memory banks",
+  "name": "@sato-isolated/memory-bank-mcp",
+  "version": "0.3.0",
+  "description": "MCP server for MongoDB-native memory bank management (Fork with enhanced MongoDB features)",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/alioshr/memory-bank-mcp.git"
+    "url": "git+https://github.com/Sato-Isolated/memory-bank-mcp.git"
   },
   "keywords": [
     "mcp",
     "memory-bank",
+    "mongodb",
     "project-management",
     "documentation",
-    "cline"
+    "cline",
+    "fork"
   ],
   "bugs": {
-    "url": "https://github.com/alioshr/memory-bank-mcp/issues"
+    "url": "https://github.com/Sato-Isolated/memory-bank-mcp/issues"
   },
-  "homepage": "https://github.com/alioshr/memory-bank-mcp#readme",
+  "homepage": "https://github.com/Sato-Isolated/memory-bank-mcp#readme",
   "main": "dist/main/index.js",
   "files": [
     "dist"
   ],
-  "author": "Aliosh Pimenta (alioshr)",
+  "author": "MindLated (forked from Aliosh Pimenta)",
   "license": "MIT",
   "type": "module",
   "bin": {
@@ -38,7 +40,9 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.5.0",
-    "fs-extra": "^11.2.0"
+    "fs-extra": "^11.2.0",
+    "mongodb": "6.17.0",
+    "zod": "3.25.56"
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",

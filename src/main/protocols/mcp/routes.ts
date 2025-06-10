@@ -1,6 +1,7 @@
 import {
   makeListProjectFilesController,
   makeListProjectsController,
+  makeMergeFilesController,
   makeReadController,
   makeUpdateController,
   makeWriteController,
@@ -112,8 +113,30 @@ export default () => {
         },
         required: ["projectName", "fileName", "content"],
       },
+    },    handler: adaptMcpRequestHandler(makeUpdateController()),
+  });
+
+  router.setTool({
+    schema: {
+      name: "memory_bank_merge",
+      description: "Merge all files from a project into a single formatted document",
+      inputSchema: {
+        type: "object",
+        properties: {
+          projectName: {
+            type: "string",
+            description: "The name of the project",
+          },
+          format: {
+            type: "string",
+            description: "Output format: 'markdown' or 'plain'",
+            enum: ["markdown", "plain"],
+          },
+        },
+        required: ["projectName"],
+      },
     },
-    handler: adaptMcpRequestHandler(makeUpdateController()),
+    handler: adaptMcpRequestHandler(makeMergeFilesController()),
   });
 
   return router;

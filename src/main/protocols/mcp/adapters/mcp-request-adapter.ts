@@ -19,9 +19,7 @@ export const adaptMcpRequestHandler = async <
       body,
     });
 
-    const isError = response.statusCode < 200 || response.statusCode >= 300;
-
-    return {
+    const isError = response.statusCode < 200 || response.statusCode >= 300;    return {
       tools: [],
       isError,
       content: [
@@ -29,7 +27,7 @@ export const adaptMcpRequestHandler = async <
           type: "text",
           text: isError
             ? JSON.stringify(serializeError(response.body))
-            : response.body?.toString(),
+            : JSON.stringify(response.body, null, 2),
         },
       ],
     };
