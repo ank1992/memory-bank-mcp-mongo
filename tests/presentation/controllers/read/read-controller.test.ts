@@ -5,16 +5,18 @@ import {
   NotFoundError,
   UnexpectedError,
 } from "../../../../src/presentation/errors/index.js";
-import { makeReadFileUseCase, makeValidator } from "../../mocks/index.js";
+import { makeReadFileUseCase, makeValidator, makeContextChecker } from "../../mocks/index.js";
 
 const makeSut = () => {
   const validatorStub = makeValidator<ReadRequest>();
   const readFileUseCaseStub = makeReadFileUseCase();
-  const sut = new ReadController(readFileUseCaseStub, validatorStub);
+  const contextCheckerStub = makeContextChecker();
+  const sut = new ReadController(readFileUseCaseStub, validatorStub, contextCheckerStub);
   return {
     sut,
     validatorStub,
     readFileUseCaseStub,
+    contextCheckerStub,
   };
 };
 
@@ -75,11 +77,8 @@ describe("ReadController", () => {
         fileName: "any_file",
       },
     };
-    const response = await sut.handle(request);
-    expect(response).toEqual({
-      statusCode: 404,
-      body: new NotFoundError("any_file"),
-    });
+    const response = await sut.handle(request);    expect(response.statusCode).toBe(404);
+    expect(response.body).toBeInstanceOf(NotFoundError);
   });
 
   it("should return 500 if ReadFileUseCase throws", async () => {
@@ -107,11 +106,17 @@ describe("ReadController", () => {
         projectName: "any_project",
         fileName: "any_file",
       },
-    };
-    const response = await sut.handle(request);
+    };    const response = await sut.handle(request);
     expect(response).toEqual({
       statusCode: 200,
-      body: "file content",
+      body: {
+        content: "file content",
+        projectName: "any_project",
+        fileName: "any_file",
+        contextCheck: expect.any(Object),
+        contextInfo: expect.any(String),
+        recommendation: expect.any(String),
+      },
     });
   });
 });

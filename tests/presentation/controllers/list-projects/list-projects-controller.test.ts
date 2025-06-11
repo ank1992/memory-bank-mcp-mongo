@@ -31,13 +31,17 @@ describe("ListProjectsController", () => {
       body: new UnexpectedError(new Error("any_error")),
     });
   });
-
   it("should return 200 with projects on success", async () => {
     const { sut } = makeSut();
     const response = await sut.handle();
     expect(response).toEqual({
       statusCode: 200,
-      body: ["project1", "project2"],
+      body: {
+        projects: ["project1", "project2"],
+        totalCount: 2,
+        contextInfo: expect.any(String),
+        workflowGuidance: expect.any(String),
+      },
     });
   });
 });

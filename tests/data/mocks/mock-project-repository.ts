@@ -62,4 +62,13 @@ export class MockProjectRepository implements ProjectRepository {
       this.projects.push(newProject);
     }
   }
+
+  async updateProjectStats(name: string, fileCount: number, totalSize: number): Promise<void> {
+    const project = this.projects.find(p => p.name === name);
+    if (project) {
+      project.fileCount = fileCount;
+      project.totalSize = totalSize;
+      project.updatedAt = new Date();
+    }
+  }
 }

@@ -5,19 +5,23 @@ import { UnexpectedError } from "../../../../src/presentation/errors/index.js";
 import {
   makeListProjectFilesUseCase,
   makeValidator,
+  makeContextChecker,
 } from "../../mocks/index.js";
 
 const makeSut = () => {
   const validatorStub = makeValidator<ListProjectFilesRequest>();
   const listProjectFilesUseCaseStub = makeListProjectFilesUseCase();
+  const contextCheckerStub = makeContextChecker();
   const sut = new ListProjectFilesController(
     listProjectFilesUseCaseStub,
-    validatorStub
+    validatorStub,
+    contextCheckerStub
   );
   return {
     sut,
     validatorStub,
     listProjectFilesUseCaseStub,
+    contextCheckerStub,
   };
 };
 
@@ -92,11 +96,17 @@ describe("ListProjectFilesController", () => {
       body: {
         projectName: "any_project",
       },
-    };
-    const response = await sut.handle(request);
+    };    const response = await sut.handle(request);
     expect(response).toEqual({
       statusCode: 200,
-      body: ["file1.txt", "file2.txt"],
+      body: {
+        projectName: "any_project",
+        files: ["file1.txt", "file2.txt"],
+        totalCount: 2,
+        contextInfo: expect.any(String),
+        workflowGuidance: expect.any(String),
+        contextCheck: expect.any(Object),
+      },
     });
   });
 });

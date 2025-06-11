@@ -1,6 +1,6 @@
 {
   "name": "memory-bank-mcp-mongodb",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "MCP server for MongoDB-native memory bank management (Fork with enhanced MongoDB features)",  "repository": {
     "type": "git",
     "url": "git+https://github.com/Sato-Isolated/memory-mongo-bank-mcp.git"
