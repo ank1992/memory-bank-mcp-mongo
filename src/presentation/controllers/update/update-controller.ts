@@ -7,6 +7,7 @@ import {
   UpdateFileUseCase,
   UpdateRequest,
   UpdateResponse,
+  ContextChecker,
 } from "./protocols.js";
 
 export class UpdateController
@@ -14,7 +15,8 @@ export class UpdateController
 {
   constructor(
     private readonly updateFileUseCase: UpdateFileUseCase,
-    private readonly validator: RequestValidator
+    private readonly validator: RequestValidator,
+    private readonly contextChecker: ContextChecker
   ) {}
 
   async handle(
@@ -26,7 +28,18 @@ export class UpdateController
         return badRequest(validationError);
       }
 
-      const { projectName, fileName, content } = request.body!;
+      const { projectName, fileName, content } = request.body!; // Check project context before updating
+      const contextCheck = await this.contextChecker.checkProjectContext(
+        projectName,
+        fileName
+      );
+
+      // Verify file exists before updating
+      if (!contextCheck.fileExists) {
+        return notFound(
+          `File ${fileName} not found in project ${projectName}. Use the write tool to create new files.`
+        );
+      }
 
       const result = await this.updateFileUseCase.updateFile({
         projectName,
@@ -35,12 +48,23 @@ export class UpdateController
       });
 
       if (result === null) {
-        return notFound(fileName);
+        return notFound(`File ${fileName} not found in project ${projectName}`);
       }
 
-      return ok(
-        `File ${fileName} updated successfully in project ${projectName}`
+      const contextInfo = this.contextChecker.formatContextInfo(contextCheck);
+      const recommendation = this.contextChecker.generateRecommendation(
+        contextCheck,
+        "update"
       );
+
+      return ok({
+        message: `File ${fileName} updated successfully in project ${projectName}`,
+        projectName,
+        fileName,
+        contextCheck,
+        contextInfo,
+        recommendation,
+      });
     } catch (error) {
       return serverError(error as Error);
     }

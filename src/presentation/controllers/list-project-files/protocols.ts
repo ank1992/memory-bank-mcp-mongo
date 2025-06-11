@@ -5,11 +5,29 @@ import {
   Response,
   Validator,
 } from "../../protocols/index.js";
+import { ContextChecker } from "../../helpers/index.js";
 
 export interface ListProjectFilesRequest {
   projectName: string;
 }
 
-export type ListProjectFilesResponse = string[];
+export interface ListProjectFilesResponse {
+  projectName: string;
+  files: string[];
+  totalCount: number;
+  contextInfo: string;
+  workflowGuidance: string;
+  contextCheck: {
+    projectExists: boolean;
+    availableProjects: string[];
+  };
+}
 
-export { Controller, ListProjectFilesUseCase, Request, Response, Validator };
+export {
+  Controller,
+  ListProjectFilesUseCase,
+  Request,
+  Response,
+  Validator,
+  ContextChecker,
+};

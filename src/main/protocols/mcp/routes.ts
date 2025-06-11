@@ -11,11 +11,11 @@ import { McpRouterAdapter } from "./adapters/mcp-router-adapter.js";
 
 export default () => {
   const router = new McpRouterAdapter();
-
   router.setTool({
     schema: {
       name: "list_projects",
-      description: "List all projects in the memory bank",
+      description:
+        "🔍 [START HERE] List all projects in the memory bank. Use this first to explore available projects before reading or writing files.",
       inputSchema: {
         type: "object",
         properties: {},
@@ -24,11 +24,11 @@ export default () => {
     },
     handler: adaptMcpRequestHandler(makeListProjectsController()),
   });
-
   router.setTool({
     schema: {
       name: "list_project_files",
-      description: "List all files within a specific project",
+      description:
+        "📂 [EXPLORE] List all files within a specific project. Use after list_projects to see what files exist before reading them.",
       inputSchema: {
         type: "object",
         properties: {
@@ -42,11 +42,11 @@ export default () => {
     },
     handler: adaptMcpRequestHandler(makeListProjectFilesController()),
   });
-
   router.setTool({
     schema: {
       name: "memory_bank_read",
-      description: "Read a memory bank file for a specific project",
+      description:
+        "📖 [READ] Read a memory bank file for a specific project. Returns file content with context about the project structure.",
       inputSchema: {
         type: "object",
         properties: {
@@ -64,11 +64,11 @@ export default () => {
     },
     handler: adaptMcpRequestHandler(makeReadController()),
   });
-
   router.setTool({
     schema: {
       name: "memory_bank_write",
-      description: "Create a new memory bank file for a specific project",
+      description:
+        "✍️ [CREATE] Create a new memory bank file for a specific project. Automatically checks if file already exists and provides helpful context about project state.",
       inputSchema: {
         type: "object",
         properties: {
@@ -90,11 +90,11 @@ export default () => {
     },
     handler: adaptMcpRequestHandler(makeWriteController()),
   });
-
   router.setTool({
     schema: {
       name: "memory_bank_update",
-      description: "Update an existing memory bank file for a specific project",
+      description:
+        "📝 [MODIFY] Update an existing memory bank file for a specific project. Verifies file exists before updating and provides context about changes.",
       inputSchema: {
         type: "object",
         properties: {
@@ -113,13 +113,14 @@ export default () => {
         },
         required: ["projectName", "fileName", "content"],
       },
-    },    handler: adaptMcpRequestHandler(makeUpdateController()),
+    },
+    handler: adaptMcpRequestHandler(makeUpdateController()),
   });
-
   router.setTool({
     schema: {
       name: "memory_bank_merge",
-      description: "Merge all files from a project into a single formatted document",
+      description:
+        "🔗 [FUSION] Merge all files from a project into a single formatted document. Use after reading individual files to get a complete overview.",
       inputSchema: {
         type: "object",
         properties: {

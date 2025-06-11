@@ -6,6 +6,8 @@ import {
   Response,
   Validator,
 } from "../../protocols/index.js";
+import { ContextChecker } from "../../helpers/index.js";
+
 export interface ReadRequest {
   /**
    * The name of the project containing the file.
@@ -18,7 +20,19 @@ export interface ReadRequest {
   fileName: string;
 }
 
-export type ReadResponse = string;
+export interface ReadResponse {
+  content: string;
+  projectName: string;
+  fileName: string;
+  contextCheck: {
+    projectExists: boolean;
+    fileExists: boolean;
+    availableProjects: string[];
+    projectFiles: string[];
+  };
+  contextInfo?: string;
+  recommendation?: string;
+}
 
 export {
   Controller,
@@ -27,4 +41,5 @@ export {
   Request,
   Response,
   Validator,
+  ContextChecker,
 };

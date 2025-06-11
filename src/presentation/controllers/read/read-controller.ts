@@ -7,12 +7,14 @@ import {
   Request,
   Response,
   Validator,
+  ContextChecker,
 } from "./protocols.js";
 
 export class ReadController implements Controller<ReadRequest, ReadResponse> {
   constructor(
     private readonly readFileUseCase: ReadFileUseCase,
-    private readonly validator: Validator
+    private readonly validator: Validator,
+    private readonly contextChecker: ContextChecker
   ) {}
 
   async handle(request: Request<ReadRequest>): Promise<Response<ReadResponse>> {
@@ -24,16 +26,42 @@ export class ReadController implements Controller<ReadRequest, ReadResponse> {
 
       const { projectName, fileName } = request.body!;
 
+      // Check project context to provide helpful information
+      const contextCheck = await this.contextChecker.checkProjectContext(
+        projectName,
+        fileName
+      );
+
       const content = await this.readFileUseCase.readFile({
         projectName,
         fileName,
       });
-
       if (content === null) {
-        return notFound(fileName);
+        const contextInfo = this.contextChecker.formatContextInfo(contextCheck);
+        const recommendation = this.contextChecker.generateRecommendation(
+          contextCheck,
+          "read"
+        );
+
+        return notFound(
+          `File ${fileName} not found in project ${projectName}${contextInfo}${recommendation}`
+        );
       }
 
-      return ok(content);
+      const contextInfo = this.contextChecker.formatContextInfo(contextCheck);
+      const recommendation = this.contextChecker.generateRecommendation(
+        contextCheck,
+        "read"
+      );
+
+      return ok({
+        content,
+        projectName,
+        fileName,
+        contextCheck,
+        contextInfo,
+        recommendation,
+      });
     } catch (error) {
       return serverError(error as Error);
     }

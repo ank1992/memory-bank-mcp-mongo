@@ -1,6 +1,8 @@
 import { NotFoundError, UnexpectedError } from "../errors/index.js";
 import { type Response } from "../protocols/index.js";
 
+export * from "./context-checker.js";
+
 export const badRequest = (error: Error): Response => ({
   statusCode: 400,
   body: error,
