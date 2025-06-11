@@ -2,16 +2,18 @@ import { describe, expect, it, vi } from "vitest";
 import { WriteRequest } from "../../../../src/presentation/controllers/write/protocols.js";
 import { WriteController } from "../../../../src/presentation/controllers/write/write-controller.js";
 import { UnexpectedError } from "../../../../src/presentation/errors/index.js";
-import { makeValidator, makeWriteFileUseCase } from "../../mocks/index.js";
+import { makeValidator, makeWriteFileUseCase, makeContextChecker } from "../../mocks/index.js";
 
 const makeSut = () => {
   const validatorStub = makeValidator<WriteRequest>();
   const writeFileUseCaseStub = makeWriteFileUseCase();
-  const sut = new WriteController(writeFileUseCaseStub, validatorStub);
+  const contextCheckerStub = makeContextChecker();
+  const sut = new WriteController(writeFileUseCaseStub, validatorStub, contextCheckerStub);
   return {
     sut,
     validatorStub,
     writeFileUseCaseStub,
+    contextCheckerStub,
   };
 };
 
@@ -85,9 +87,8 @@ describe("WriteController", () => {
       body: new UnexpectedError(new Error("any_error")),
     });
   });
-
   it("should return 200 if valid data is provided", async () => {
-    const { sut } = makeSut();
+    const { sut, contextCheckerStub } = makeSut();
     const request = {
       body: {
         projectName: "any_project",
@@ -96,9 +97,11 @@ describe("WriteController", () => {
       },
     };
     const response = await sut.handle(request);
-    expect(response).toEqual({
-      statusCode: 200,
-      body: "File any_file written successfully to project any_project",
+    expect(response.statusCode).toBe(200);    expect(response.body).toEqual({
+      message: expect.stringContaining("Mock context infoMock recommendation"),
+      success: true,
+      fileName: "any_file",
+      projectName: "any_project",
     });
   });
 });

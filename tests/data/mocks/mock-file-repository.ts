@@ -135,4 +135,15 @@ export class MockFileRepository implements FileRepository {
     }
     return null;
   }
+
+  async deleteFile(projectName: string, fileName: string): Promise<boolean> {
+    if (
+      this.projectFiles[projectName] &&
+      this.projectFiles[projectName][fileName]
+    ) {
+      delete this.projectFiles[projectName][fileName];
+      return true;
+    }
+    return false;
+  }
 }

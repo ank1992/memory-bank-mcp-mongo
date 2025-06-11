@@ -5,6 +5,7 @@ import {
   Response,
   Validator,
 } from "../../protocols/index.js";
+import { ContextChecker } from "../../helpers/index.js";
 
 export interface WriteRequest {
   projectName: string;
@@ -12,6 +13,18 @@ export interface WriteRequest {
   content: string;
 }
 
-export type WriteResponse = string;
+export interface WriteResponse {
+  message: string;
+  projectName: string;
+  fileName: string;
+  contextCheck: {
+    projectExists: boolean;
+    fileExists: boolean;
+    availableProjects: string[];
+    projectFiles: string[];
+  };
+  contextInfo?: string;
+  recommendation?: string;
+}
 
-export { Controller, Request, Response, Validator, WriteFileUseCase };
+export { Controller, Request, Response, Validator, WriteFileUseCase, ContextChecker };

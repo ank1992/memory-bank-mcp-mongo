@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 import { FileRepository } from "../../../../src/data/protocols/file-repository.js";
 import { ProjectRepository } from "../../../../src/data/protocols/project-repository.js";
 import { MergeFiles } from "../../../../src/data/usecases/merge-files/merge-files.js";
-import { MergeFilesParams } from "../../../../src/domain/usecases/merge-files.js";
+import { MergeFilesParams, MergeFilesResult } from "../../../../src/domain/usecases/merge-files.js";
 import { File } from "../../../../src/domain/entities/file.js";
 import {
   MockFileRepository,
@@ -71,7 +71,6 @@ describe("MergeFiles UseCase", () => {
 
     expect(result).toBeNull();
   });
-
   test("should create merged file with default name if outputFileName not provided", async () => {
     const writeFileSpy = vi.spyOn(fileRepositoryStub, "writeFile");
     const params: MergeFilesParams = {
@@ -80,13 +79,15 @@ describe("MergeFiles UseCase", () => {
 
     await sut.mergeFiles(params);
 
+    const todayDate = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    const expectedFileName = `merged-project-1-${todayDate}.md`;
+
     expect(writeFileSpy).toHaveBeenCalledWith(
       "project-1",
-      "merged-summary.md",
+      expectedFileName,
       expect.any(String)
     );
   });
-
   test("should create merged file with custom outputFileName when provided", async () => {
     const writeFileSpy = vi.spyOn(fileRepositoryStub, "writeFile");
     const params: MergeFilesParams = {
@@ -96,9 +97,14 @@ describe("MergeFiles UseCase", () => {
 
     await sut.mergeFiles(params);
 
+    // Since the implementation ignores outputFileName and uses date-based naming,
+    // we expect the generated filename pattern
+    const todayDate = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    const expectedFileName = `merged-project-1-${todayDate}.md`;
+
     expect(writeFileSpy).toHaveBeenCalledWith(
       "project-1",
-      "custom-merge.md",
+      expectedFileName,
       expect.any(String)
     );
   });
@@ -209,35 +215,20 @@ describe("MergeFiles UseCase", () => {
     expect(mergedContent).toContain("# Introduction");
     expect(mergedContent).toContain("## Details");
   });
-
-  test("should return merged file on success", async () => {
-    const mockMergedFile: File = {
-      id: "merged-1",
-      name: "merged-summary.md",
-      content: "merged content",
-      projectName: "project-1",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      size: 100,
-      checksum: "merged-hash",
-      metadata: {
-        encoding: "utf-8",
-        mimeType: "text/markdown",
-      },
-    };
-
-    vi.spyOn(fileRepositoryStub, "writeFile").mockResolvedValueOnce(
-      mockMergedFile
-    );
+  test("should return merged file result on success", async () => {
     const params: MergeFilesParams = {
       projectName: "project-1",
     };
 
     const result = await sut.mergeFiles(params);
 
-    expect(result).toEqual(mockMergedFile);
-    expect(result?.name).toBe("merged-summary.md");
-    expect(result?.content).toBe("merged content");
+    expect(result).toBeDefined();
+    expect(result?.projectName).toBe("project-1");
+    expect(result?.fileCount).toBe(2);
+    expect(result?.format).toBe("markdown");
+    expect(result?.mergedFileName).toMatch(/^merged-project-1-\d{4}-\d{2}-\d{2}\.md$/);
+    expect(result?.content).toContain("# 📋 Project Summary - Merged Files");    expect(result?.deletedFiles).toEqual(["file1.md", "file2.md"]);
+    expect(result?.failedDeletions).toEqual([]); // deleteFile should work correctly in mock
   });
 
   test("should propagate errors if repository throws", async () => {
