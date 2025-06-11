@@ -22,13 +22,20 @@ export class MergeFiles implements MergeFilesUseCase {
     const files = await this.fileRepository.listFiles(projectName);
     if (files.length === 0) {
       return null;
-    }
-
-    // Générer le contenu fusionné
+    }    // Générer le contenu fusionné
     const mergedContent = this.generateMergedContent(files, includeMetadata, format);
     
-    // Créer le nom du fichier merged
-    const mergedFileName = `merged-${projectName}-${new Date().toISOString().split('T')[0]}.${format === 'markdown' ? 'md' : 'txt'}`;
+    // Créer le nom du fichier merged avec timestamp pour éviter les conflits
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').split('T');
+    const dateStr = timestamp[0];
+    const timeStr = timestamp[1].split('-').slice(0, 3).join('-'); // HH-MM-SS
+    const mergedFileName = `merged-${projectName}-${dateStr}-${timeStr}.${format === 'markdown' ? 'md' : 'txt'}`;
+    
+    // Vérifier si un fichier merged existe déjà et le supprimer pour éviter les conflits
+    const existingFile = await this.fileRepository.loadFile(projectName, mergedFileName);
+    if (existingFile) {
+      await this.fileRepository.deleteFile(projectName, mergedFileName);
+    }
     
     // Sauvegarder le fichier merged
     const mergedFile = await this.fileRepository.writeFile(projectName, mergedFileName, mergedContent);

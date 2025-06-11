@@ -1,6 +1,7 @@
 import { MongoClient, Db, Collection } from "mongodb";
 import { FileRepository } from "../../../data/protocols/file-repository.js";
 import { ProjectRepository } from "../../../data/protocols/project-repository.js";
+import { FileVersionRepository } from "../../../data/protocols/file-version-repository.js";
 import { File, FileSchema } from "../../../domain/entities/file.js";
 import {
   StorageError,
@@ -36,17 +37,20 @@ export class MongoFileRepository implements FileRepository {
   private db: Db;
   private collection: Collection<MongoFileDocument>;
   private projectRepository: ProjectRepository;
+  private fileVersionRepository?: FileVersionRepository;
 
   constructor(
     client: MongoClient,
     dbName: string,
-    projectRepository?: ProjectRepository
+    projectRepository?: ProjectRepository,
+    fileVersionRepository?: FileVersionRepository
   ) {
     this.db = client.db(dbName);
     this.collection = this.db.collection<MongoFileDocument>("memory_files");
     // Pour la compatibilité, on peut optionnellement accepter un ProjectRepository
     // Si non fourni, on crée une instance temporaire (ce qui sera géré par le factory)
     this.projectRepository = projectRepository!;
+    this.fileVersionRepository = fileVersionRepository;
     this.ensureIndexes();
   }
   private async ensureIndexes(): Promise<void> {
@@ -121,10 +125,10 @@ export class MongoFileRepository implements FileRepository {
       console.warn("⚠️ Failed to setup MongoDB indexes:", error);
     }
   }
-
   private enhanceFileMetadata(
     content: string,
-    fileName: string
+    fileName: string,
+    currentVersion?: number
   ): MongoFileDocument["metadata"] {
     const lines = content.split("\n");
     const words = content.split(/\s+/).filter((word) => word.length > 0);
@@ -152,7 +156,7 @@ export class MongoFileRepository implements FileRepository {
       lineCount: lines.length,
       keywords,
       summary: summary || undefined,
-      version: 1,
+      version: currentVersion || 1,
     };
   }
   private mongoDocumentToFile(doc: MongoFileDocument): File {
@@ -246,8 +250,7 @@ export class MongoFileRepository implements FileRepository {
         error as Error
       );
     }
-  }
-  async updateFile(
+  }  async updateFile(
     projectName: string,
     fileName: string,
     content: string
@@ -257,13 +260,50 @@ export class MongoFileRepository implements FileRepository {
       const contentBuffer = Buffer.from(content, "utf8");
       const checksum = createHash("sha256").update(contentBuffer).digest("hex");
 
+      // Get current file to create version before update
+      const currentFile = await this.collection.findOne({
+        projectName,
+        name: fileName,
+      });
+
+      if (!currentFile) {
+        return null;
+      }
+
+      // Create version history if versioning is enabled
+      if (this.fileVersionRepository) {
+        try {
+          await this.fileVersionRepository.createVersion({
+            fileId: currentFile.id,
+            projectName: currentFile.projectName,
+            fileName: currentFile.name,
+            content: currentFile.content,
+            version: currentFile.metadata?.version || 1,
+            checksum: currentFile.checksum || "",
+            size: currentFile.size,
+            createdAt: currentFile.updatedAt,
+            metadata: {
+              ...currentFile.metadata,
+              changeDescription: "Updated via API",
+              isAutoSave: false,
+            },
+          });
+        } catch (versionError) {
+          console.warn(`Failed to create version for ${fileName}:`, versionError);
+        }
+      }
+
+      // Increment version number
+      const newVersion = (currentFile.metadata?.version || 1) + 1;
+
       const updateData = {
         content,
         updatedAt: now,
         size: contentBuffer.length,
         checksum,
-        metadata: this.enhanceFileMetadata(content, fileName),
+        metadata: this.enhanceFileMetadata(content, fileName, newVersion),
       };
+
       const result = await this.collection.findOneAndUpdate(
         { projectName, name: fileName },
         { $set: updateData },
@@ -282,8 +322,7 @@ export class MongoFileRepository implements FileRepository {
         error as Error
       );
     }
-  }
-  async deleteFile(projectName: string, fileName: string): Promise<boolean> {
+  }  async deleteFile(projectName: string, fileName: string): Promise<boolean> {
     try {
       const result = await this.collection.deleteOne({
         projectName,
@@ -293,6 +332,15 @@ export class MongoFileRepository implements FileRepository {
       const deleted = result.deletedCount > 0;
 
       if (deleted) {
+        // Delete version history if versioning is enabled
+        if (this.fileVersionRepository) {
+          try {
+            await this.fileVersionRepository.deleteAllVersions(projectName, fileName);
+          } catch (versionError) {
+            console.warn(`Failed to delete versions for ${fileName}:`, versionError);
+          }
+        }
+        
         // Mettre à jour les statistiques du projet
         await this.updateProjectStats(projectName);
       }

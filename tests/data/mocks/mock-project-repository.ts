@@ -62,7 +62,6 @@ export class MockProjectRepository implements ProjectRepository {
       this.projects.push(newProject);
     }
   }
-
   async updateProjectStats(name: string, fileCount: number, totalSize: number): Promise<void> {
     const project = this.projects.find(p => p.name === name);
     if (project) {
@@ -70,5 +69,14 @@ export class MockProjectRepository implements ProjectRepository {
       project.totalSize = totalSize;
       project.updatedAt = new Date();
     }
+  }
+
+  async deleteProject(name: string): Promise<boolean> {
+    const index = this.projects.findIndex(p => p.name === name);
+    if (index > -1) {
+      this.projects.splice(index, 1);
+      return true;
+    }
+    return false;
   }
 }

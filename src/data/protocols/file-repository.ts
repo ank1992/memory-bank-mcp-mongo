@@ -14,4 +14,7 @@ export interface FileRepository {
     content: string
   ): Promise<File | null>;
   deleteFile(projectName: string, fileName: string): Promise<boolean>;
+  searchFiles(projectName: string, query: string): Promise<File[]>;
+  getFilesByTags(projectName: string, tags: string[]): Promise<File[]>;
+  getProjectStats(projectName: string): Promise<{ fileCount: number; totalSize: number }>;
 }

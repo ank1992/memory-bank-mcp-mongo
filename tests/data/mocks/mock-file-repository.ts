@@ -135,7 +135,6 @@ export class MockFileRepository implements FileRepository {
     }
     return null;
   }
-
   async deleteFile(projectName: string, fileName: string): Promise<boolean> {
     if (
       this.projectFiles[projectName] &&
@@ -145,5 +144,35 @@ export class MockFileRepository implements FileRepository {
       return true;
     }
     return false;
+  }
+
+  async searchFiles(projectName: string, query: string): Promise<File[]> {
+    const files = this.projectFiles[projectName];
+    if (!files) return [];
+
+    return Object.values(files).filter(file => 
+      file.content.toLowerCase().includes(query.toLowerCase()) ||
+      file.name.toLowerCase().includes(query.toLowerCase())
+    );
+  }
+
+  async getFilesByTags(projectName: string, tags: string[]): Promise<File[]> {
+    const files = this.projectFiles[projectName];
+    if (!files) return [];
+
+    return Object.values(files).filter(file => 
+      file.metadata?.tags && tags.some(tag => file.metadata?.tags?.includes(tag))
+    );
+  }
+
+  async getProjectStats(projectName: string): Promise<{ fileCount: number; totalSize: number }> {
+    const files = this.projectFiles[projectName];
+    if (!files) return { fileCount: 0, totalSize: 0 };
+
+    const fileArray = Object.values(files);
+    return {
+      fileCount: fileArray.length,
+      totalSize: fileArray.reduce((total, file) => total + file.size, 0)
+    };
   }
 }

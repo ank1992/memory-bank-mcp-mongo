@@ -13,6 +13,11 @@ export const FileSchema = z.object({
     encoding: z.string().default('utf-8'),
     mimeType: z.string().default('text/plain'),
     tags: z.array(z.string()).optional(),
+    wordCount: z.number().optional(),
+    lineCount: z.number().optional(),
+    keywords: z.array(z.string()).optional(),
+    summary: z.string().optional(),
+    version: z.number().optional(),
   }).optional(),
 });
 

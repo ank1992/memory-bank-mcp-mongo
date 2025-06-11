@@ -102,31 +102,86 @@ pnpm run build
 env MONGODB_URL=mongodb://localhost:27017 MONGODB_DB=memory_bank npx -y memory-bank-mcp-mongodb
 ```
 
+## Documentation
+
+This project uses distributed documentation to help you navigate different sections:
+
+### 📚 **Architecture & Code Structure**
+
+- **[Source Code Overview](src/README.md)** - Architecture patterns and project structure
+- **[Domain Layer](src/domain/README.md)** - Business entities and core logic
+- **[Data Layer](src/data/README.md)** - Repository patterns and use cases
+- **[Presentation Layer](src/presentation/README.md)** - Controllers and API endpoints
+- **[Infrastructure](src/infra/README.md)** - Database and external services
+
 ## Available Tools
 
-### 📋 `list_projects`
+### 🎯 **Priority Tools (Start Here)**
 
-Lists all available projects with real-time statistics.
+#### 📋 `list_projects`
+**[PRIORITY 1 - START HERE]** List all projects in the memory bank. ALWAYS use this first to discover available projects before any other operation. Essential for understanding workspace structure.
 
-### 📁 `list_project_files`
+#### 📁 `list_project_files`
+**[PRIORITY 2 - EXPLORE]** List all files within a specific project. Use after `list_projects` to discover what files exist before reading them. Critical for understanding project content.
 
-Lists all files within a specific project with detailed metadata.
+#### 📖 `memory_bank_read`
+**[PRIORITY 3 - READ]** Read a memory bank file for a specific project. Primary method to access file content. Use after `list_project_files` to read specific files.
 
-### 📖 `memory_bank_read`
+#### 🔍 `memory_bank_search`
+**[HIGH PRIORITY - SEARCH]** Search for files containing specific text within a project. Essential for finding relevant files when you don't know exact filenames.
 
-Reads the content of a specific file from a project.
+### 📝 **File Management Tools**
 
-### ✏️ `memory_bank_write`
+#### ✏️ `memory_bank_write`
+**[CREATE NEW]** Create a new memory bank file for a specific project. Use when you need to create brand new files.
 
-Creates a new file in a project with automatic metadata enhancement.
+#### 🔄 `memory_bank_update`
+**[MODIFY EXISTING]** Update an existing memory bank file for a specific project. Automatically creates version history.
 
-### 🔄 `memory_bank_update`
+#### 🔀 `memory_bank_merge`
+**[COMPREHENSIVE VIEW]** Merge all files from a project into a single formatted document. Excellent for understanding full project context.
 
-Updates an existing file in a project with version tracking.
+#### 🏷️ `memory_bank_get_files_by_tags`
+**[SMART FILTER]** Find files in a project by their tags. Helpful when you know the type of content you're looking for but not exact filenames.
 
-### 🔀 `memory_bank_merge`
+#### 📊 `memory_bank_get_project_stats`
+**[PROJECT OVERVIEW]** Get statistics for a project including file count and total size. Use to understand project scope and scale.
 
-Combines all files from a project into a unified document and automatically removes source files.
+### 🗑️ **Deletion Tools (Use with Caution)**
+
+#### 🗑️ `memory_bank_delete_file`
+**[CAREFUL - DELETE FILE]** Delete a specific file from a project. ⚠️ WARNING: This action is permanent and cannot be undone.
+
+#### 💥 `memory_bank_delete_project`
+**[DANGER - DELETE PROJECT]** Delete an entire project and all its files. ⚠️ EXTREME CAUTION: This action is permanent and cannot be undone.
+
+### 📚 **Version Control Tools**
+
+#### 📚 `memory_bank_version_history`
+**[VERSION HISTORY]** Get complete version history for a specific file. Shows all previous versions with metadata and timestamps.
+
+#### 📄 `memory_bank_read_version`
+**[READ SPECIFIC VERSION]** Read the content of a specific file version. Use to view historical content of a particular version.
+
+#### ⏪ `memory_bank_revert_file_to_version`
+**[RESTORE PREVIOUS VERSION]** Restore a file to a previous version. Creates a new version with the old content for safety.
+
+#### 🔍 `memory_bank_compare_versions`
+**[COMPARE VERSIONS]** Compare two versions of a file to see differences. Use to understand what changed between versions.
+
+#### 🧹 `memory_bank_cleanup_old_versions`
+**[MAINTENANCE]** Clean up old file versions to save storage space. Keeps recent versions and removes older ones.
+
+### 🚀 **Project Template Tools**
+
+#### 📋 `memory_bank_get_project_templates`
+**[TEMPLATE DISCOVERY]** List available project templates. Essential when starting new projects from predefined structures.
+
+#### 🚀 `memory_bank_create_project_from_template`
+**[RAPID PROJECT CREATION]** Create a new project using a template. Fastest way to start structured projects.
+
+#### ⚡ `memory_bank_install_predefined_templates`
+**[FIRST-TIME SETUP]** Install built-in project templates. Run this ONCE when first using the system to add default templates.
 
 ## MongoDB Setup Examples
 
@@ -141,14 +196,6 @@ MONGODB_DB=memory_bank
 
 ```bash
 MONGODB_URL=mongodb+srv://username:password@cluster.mongodb.net
-MONGODB_DB=memory_bank
-```
-
-**Docker MongoDB:**
-
-```bash
-docker run -d -p 27017:27017 --name mongodb mongo:latest
-MONGODB_URL=mongodb://localhost:27017
 MONGODB_DB=memory_bank
 ```
 

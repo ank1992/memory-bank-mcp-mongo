@@ -2,11 +2,15 @@ import { loadConfig } from "../../config/config.js";
 import { StorageFactory } from "../../../infra/database/storage-factory.js";
 import { FileRepository } from "../../../data/protocols/file-repository.js";
 import { ProjectRepository } from "../../../data/protocols/project-repository.js";
+import { FileVersionRepository } from "../../../data/protocols/file-version-repository.js";
+import { ProjectTemplateRepository } from "../../../data/protocols/project-template-repository.js";
 
 class RepositoriesService {
   private repositories: {
     fileRepository: FileRepository;
     projectRepository: ProjectRepository;
+    fileVersionRepository: FileVersionRepository;
+    projectTemplateRepository: ProjectTemplateRepository;
   } | null = null;
 
   async getRepositories() {
