@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/ank1992-memory-bank-mcp-mongo-badge.png)](https://mseep.ai/app/ank1992-memory-bank-mcp-mongo)
+
 # 🧠 Memory Bank MCP Mongo
 
 ![Memory Bank Logo](https://img.shields.io/badge/Memory%20Bank-MCP%20Mongo-blue.svg)
